@@ -5,6 +5,7 @@ module Lib
     replaceAt,
     map2d,
     zipWith2d,
+    takeWhile2,
     runInput,
     runSample,
     testSample,
@@ -20,6 +21,7 @@ import Data.List as L
 import Data.Function
 import Data.Maybe
 import Text.Printf
+import qualified Data.List.Split as Split
 
 import Text.Megaparsec hiding(State)
 import Data.Void
@@ -33,6 +35,12 @@ splitOnElem :: (Eq a) => a -> [a] -> [[a]]
 splitOnElem e l =
   let g = L.groupBy ((==) `on` (== e)) l
   in map fst $ filter (even . snd) $ zip g [0..]
+
+takeWhile2 :: (a -> a -> Bool) -> [a] -> [a]
+takeWhile2 f l = let
+  z = zip (init l) (tail l)
+  matched = L.takeWhile (uncurry f) z
+  in map fst matched
   
 readFileLines :: String -> IO [String]
 readFileLines x = lines <$> readFile x
