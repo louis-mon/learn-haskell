@@ -58,6 +58,6 @@ moves = L.scanl' moveState (replicate ropeSize Point{x=0,y=0}) . parse
 sol :: [String] -> Int
 sol = length . S.fromList . map last . moves
 
-test = testSample "09" 36 sol
+test = testSample 9 36 sol
 
-execute = runInput "09" sol
+execute = runInput 9 sol

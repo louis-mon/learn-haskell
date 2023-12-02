@@ -34,5 +34,5 @@ paths Problem{heights, start, end} = let
   in fromJust $ M.lookup end path
 
 
-test = runSample "12" (paths . parseInput)
-exec = runInput "12" (paths . parseInput)
+test = runSample 12 (paths . parseInput)
+exec = runInput 12 (paths . parseInput)

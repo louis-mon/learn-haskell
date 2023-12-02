@@ -10,8 +10,6 @@ import Data.Void
 import qualified Text.Megaparsec.Char.Lexer as Lex
 import Control.Monad.Combinators.Expr
 
-type Parser = Parsec Void String
-
 data Expr = Value Int | Old | Sum Expr Expr | Prod Expr Expr deriving (Show)
 data Action = Action {mTest::Int, mTrue:: Int, mFalse::Int} deriving (Show)
 
@@ -81,6 +79,6 @@ sol1 ls = answer
     states = L.iterate (`doRound` monkeys) initState
     answer = product $ take 2 $ reverse $ L.sort $ map fst $ states !! 10000
 
-test = runSample "11" sol1
+test = runSample 11 sol1
 
-exec = runInput "11" sol1
+exec = runInput 11 sol1

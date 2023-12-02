@@ -37,6 +37,6 @@ drawImage = unlines . map (zipWith drawPixel [0..]) . chunksOf 40
 sol1 = computeSignal . executeCmds . map parseCmd
 sol2 = drawImage . executeCmds . map parseCmd
 
-test = runSample "10" sol2
+test = runSample 10 sol2
 
-execute = runInput "10" sol2
+execute = runInput 10 sol2

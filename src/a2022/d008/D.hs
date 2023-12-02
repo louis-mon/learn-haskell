@@ -51,7 +51,7 @@ calcView2 l = let
 sol2 :: [[Int]] -> Int
 sol2 = L.maximum . concat . genGrids calcView2 (*)
 
-test  = testSample "08" 8 (sol2 .parseGrid)
+test  = testSample 8 8 (sol2 .parseGrid)
 
 execute :: IO Int
-execute = runInput "08" (sol2 . parseGrid)
+execute = runInput 8 (sol2 . parseGrid)

@@ -62,11 +62,14 @@ findIndex2d f = listToMaybe . catMaybes . zipWith (fmap . flip (,)) [0..] . map 
 padZeros :: Int -> String
 padZeros = printf "%03d"
 
+year :: String
+year = "a2023"
+
 sampleFile :: Int -> FilePath
-sampleFile i = "src/a2022/d" ++ padZeros i ++ "/sample.txt"
+sampleFile i = "src/" ++ year ++ "/d" ++ padZeros i ++ "/sample.txt"
 
 inputFile :: Int -> FilePath
-inputFile i = "src/a2022/d" ++ padZeros i ++ "/input.txt"
+inputFile i = "src/" ++ year ++ "/d" ++ padZeros i ++ "/input.txt"
 
 testSample :: (Eq a) => Int -> a -> ([String] -> a) -> IO (Bool, a)
 testSample i a f = do
