@@ -13,6 +13,7 @@ module Lib
     readSample,
     readInput,
     parseOrError,
+    padZeros,
     Parser,
   )
 where

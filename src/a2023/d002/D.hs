@@ -9,10 +9,13 @@ import qualified Text.Megaparsec.Char.Lexer as Lex
 
 data Game = Game {gId :: Int, cubes :: [(Int, String)]} deriving (Show)
 
+pColor :: Parser String
+pColor = choice [string "green", string "red", string "blue"]
+
 pGame :: Parser Game
 pGame = do
   gId <- string "Game " *> Lex.decimal <* string ": "
-  cubes <- sepBy ((,) <$> Lex.decimal <* string " " <*> choice [string "green", string "red", string "blue"]) (choice [string "; ", string ", "])
+  cubes <- sepBy ((,) <$> Lex.decimal <* string " " <*> pColor) (choice [string "; ", string ", "])
   return Game {..}
 
 pProblem :: Parser [Game]
