@@ -1,80 +1,75 @@
 module D where
 
-import Lib
 import Data.Char
-import qualified Data.Map as M
 import qualified Data.List as L
+import qualified Data.Map as M
+import qualified Data.Maybe as Maybe
 import qualified Data.Set as S
+import qualified Grid2d as G
+import Lib
 import Text.Megaparsec hiding (State)
 import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as Lex
 
-type NumP = (Int, Int, Int)
-data Line = Line {nums::[(Int, Int, Int)], chars::M.Map Int Char} deriving Show
-type Input = M.Map Int Line
+pOther :: Parser [Char]
+pOther = many (noneOf ['0' .. '9'])
+
+pLine :: Parser [(Int, Int, Int)]
+pLine = do
+  _ <- optional pOther
+  sepEndBy
+    do
+      p1 <- getSourcePos
+      d <- Lex.decimal
+      p2 <- getSourcePos
+      return (d, sourceColI p1, sourceColI p2)
+    pOther
+
+type NumP = (Int, Int, Int, Int)
+
+data Input = Input {getGrid :: G.Grid2d Char, getNums :: [NumP]} deriving (Show)
 
 getNum :: NumP -> Int
-getNum (n, s, e) = n
+getNum (n, _, _, _) = n
 
 isSym :: Char -> Bool
 isSym c = not (isDigit c) && c /= '.'
 
-isPart :: NumP -> Int -> Input -> Bool
-isPart (n, s, e) lineI input = let
-  Line{chars = lchars} = input M.! lineI
-  left = (s > 0) && isSym (lchars M.! (s-1))
-  right = (e <= M.size lchars - 1) && isSym (lchars M.! e)
-  subLine = [x | x <- [s-1..e], x >= 0 && x < M.size lchars]
-  top = (lineI > 0) && any (\x -> isSym (chars (input M.! (lineI - 1)) M.! x) ) subLine
-  bottom = (lineI < M.size input - 1) && any (\x -> isSym (chars (input M.! (lineI + 1)) M.! x) ) subLine
-  in left || right || top || bottom
+processInput :: Input -> [Int]
+processInput (Input grid nums) =
+  [ n | (n, x1, x2, y) <- nums, let cont = G.lookup2ds (G.pContour (x1, y) (x2, y + 1)) grid, any isSym cont
+  ]
 
 type SymRef = (Char, (Int, Int))
 
-findParts :: NumP -> Int -> Input -> [(Char, (Int, Int))]
-findParts (n, s, e) lineI input = let
-  Line{chars = lchars} = input M.! lineI
-  left = [(lchars M.! (s-1), (s-1, lineI)) | (s > 0) && isSym (lchars M.! (s-1))]
-  right = [(lchars M.! e, (e, lineI)) | (e <= M.size lchars - 1) && isSym (lchars M.! e)]
-  subLine = [x | x <- [s-1..e], x >= 0 && x < M.size lchars]
-  top = [(c, (x, lineI - 1)) | lineI > 0, x <- subLine, let c = chars (input M.! (lineI - 1)) M.! x, isSym c ]
-  bottom = [(c, (x, lineI + 1)) | lineI < M.size input - 1, x <- subLine, let c = chars (input M.! (lineI + 1)) M.! x, isSym c ]
-  in left ++ right ++ top ++ bottom
-
-cntLine :: Line -> Int -> Input -> [Int]
-cntLine Line{nums} lineI input = map getNum $ filter (\n -> isPart n lineI input) nums
-
-groupGearsLine :: Line -> Int -> Input -> [(Int, [SymRef])]
-groupGearsLine Line{nums} lineI input = map (\n -> (getNum n, findParts n lineI input)) nums
+getNghOfPart :: Int -> Int -> Int -> Input -> [SymRef]
+getNghOfPart x1 x2 y (Input grid _) =
+  [ (c, ngh) | ngh <- G.pContour (x1, y) (x2, y + 1), c <- Maybe.maybeToList $ G.lookup2d ngh grid, isSym c
+  ]
 
 processInput2 :: Input -> Int
-processInput2 input = let
-  allParts = concatMap (\(i, x) -> groupGearsLine x i input) $ M.assocs input
-  bySym = M.fromListWith (++) [(s, [n]) | (n, syms) <- allParts, s <- syms]
-  byGear = filter (\((s, _), ns) -> s == '*' && length ns == 2) $ M.assocs bySym
-  in sum $ map (\(_, ns) -> product ns) byGear
+processInput2 input@(Input _ nums) =
+  let allParts =
+        [(n, getNghOfPart x1 x2 y input) | (n, x1, x2, y) <- nums]
+      bySym = M.fromListWith (++) [(s, [n]) | (n, syms) <- allParts, s <- syms]
+      byGear = filter (\((s, _), ns) -> s == '*' && length ns == 2) $ M.assocs bySym
+   in sum $ map (\(_, ns) -> product ns) byGear
 
-processInput :: Input -> [Int]
-processInput input = concatMap (\(i, x) -> cntLine x i input) $ M.assocs input
+parseNum :: String -> [(Int, Int, Int)]
+parseNum = parseOrError pLine
 
-parseNum :: String -> Int -> [NumP] -> [NumP]
-parseNum [] _ l = l
-parseNum s si l = let
-  (st, e) = L.span isDigit s
-  res = [(readInt st, si, si+length st) | not (null st)]
-  in parseNum (if null e then [] else tail e) (1 +si+length st) res++l
-
-
-parseLine :: String -> Line
-parseLine s = let
-  nums = parseNum s 0 []
-  in Line{nums, chars=M.fromList (zip [0..] s)}
+parseLine :: (Int, String) -> [NumP]
+parseLine (y, s) = map (\(n, x1, x2) -> (n, x1, x2, y)) $ parseNum s
 
 parseInput :: [String] -> Input
-parseInput ls = M.fromList $ zip [0..] (map parseLine ls)
+parseInput ls =
+  let nums = concatMap parseLine $ zip [0 ..] ls
+      grid = G.parseFromLines ls
+   in Input grid nums
 
-sol1 = sum . processInput . parseInput
-sol2 = processInput2 . parseInput
+--sol1 = sum . processInput . parseInput
+sol = processInput2 . parseInput
 
-test = runSample 3 sol2
-run = runInput 3 sol2
+test = runSample 3 sol
+
+run = runInput 3 sol

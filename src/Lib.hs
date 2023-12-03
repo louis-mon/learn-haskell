@@ -15,6 +15,7 @@ module Lib
     parseOrError,
     padZeros,
     Parser,
+    sourceColI
   )
 where
   
@@ -28,6 +29,9 @@ import Text.Megaparsec hiding(State)
 import Data.Void
 
 type Parser = Parsec Void String
+
+sourceColI :: SourcePos -> Int
+sourceColI = (subtract 1) . unPos . sourceColumn
 
 readInt :: String -> Int
 readInt = read

@@ -52,7 +52,7 @@ parseInput :: String -> Input
 parseInput = parseOrError pProblem
 
 getAt :: (Int, Int) -> State -> Elem
-getAt = G.getAtWithDefault Empty
+getAt = G.lookup2dOr Empty
 
 nextState :: State -> State
 nextState g =
