@@ -26,6 +26,7 @@ dependencies:
 - megaparsec
 - parser-combinators
 - directory
+- mtl
 
 default-extensions:
 - Rank2Types
