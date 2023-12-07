@@ -17,6 +17,7 @@ module Lib
     Parser,
     sourceColI,
     pInt,
+    pInteger,
     pKeyword,
   )
 where
@@ -51,6 +52,9 @@ symbol = Lex.symbol sc
 
 pInt :: Parser Int
 pInt = lexeme Lex.decimal
+
+pInteger :: Parser Integer
+pInteger = lexeme Lex.decimal
 
 pKeyword :: String -> Parser String
 pKeyword keyword = lexeme (string keyword <* notFollowedBy alphaNumChar)
