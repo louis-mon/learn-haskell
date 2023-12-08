@@ -15,6 +15,8 @@ module Lib
     parseOrError,
     padZeros,
     Parser,
+    lexeme,
+    symbol,
     sourceColI,
     pInt,
     pInteger,
