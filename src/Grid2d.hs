@@ -1,4 +1,4 @@
-module Grid2d (Grid2d (..), range, lookup2dOr, lookup2d, parseFromLines, pContour, lookup2ds, elems, keys, findIndex) where
+module Grid2d (Grid2d (..), range, lookup2dOr, lookup2d, parseFromLines, pContour, lookup2ds, elems, assocs, keys, findIndex) where
 
 import qualified Data.List as L
 import qualified Data.Map as M
