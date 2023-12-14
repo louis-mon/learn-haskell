@@ -1,4 +1,20 @@
-module Grid2d (Grid2d (..), range, lookup2dOr, lookup2d, parseFromLines, pContour, lookup2ds, elems, assocs, keys, findIndex) where
+module Grid2d
+  ( Grid2d (..),
+    range,
+    bounds,
+    maxYBound,
+    lookup2dOr,
+    lookup2d,
+    parseFromLines,
+    showAsGrid,
+    pContour,
+    lookup2ds,
+    elems,
+    assocs,
+    keys,
+    findIndex,
+  )
+where
 
 import qualified Data.List as L
 import qualified Data.Map as M
@@ -7,16 +23,29 @@ import qualified Data.Maybe as Maybe
 -- Map first indexed by x, then y coord
 newtype Grid2d a = Grid2d {getMap :: M.Map Int (M.Map Int a)} deriving (Show, Eq)
 
-range :: Grid2d a -> ([Int], [Int])
-range (Grid2d g) =
+bounds :: Grid2d a -> (Int, Int, Int, Int)
+bounds (Grid2d g) =
   let xMin = fst $ M.findMin g
       xMax = fst $ M.findMax g
       yMax = L.maximum $ map (fst . M.findMax) $ M.elems g
       yMin = L.minimum $ map (fst . M.findMin) $ M.elems g
+   in (xMin, yMin, xMax, yMax)
+
+maxYBound :: Grid2d a -> Int
+maxYBound g = let (_, _, _, yMax) = bounds g in yMax
+
+range :: Grid2d a -> ([Int], [Int])
+range g =
+  let (xMin, yMin, xMax, yMax) = bounds g
    in ([xMin .. xMax], [yMin .. yMax])
 
 parseFromLines :: [String] -> Grid2d Char
 parseFromLines ls = Grid2d $ M.fromList $ zip [0 ..] $ map (M.fromList . zip [0 ..]) $ L.transpose ls
+
+showAsGrid :: Grid2d Char -> String
+showAsGrid g =
+  let (xRange, yRange) = range g
+   in unlines $ map (\y -> Maybe.mapMaybe (\x -> lookup2d (x, y) g) xRange) yRange
 
 lookup2dOr :: a -> (Int, Int) -> Grid2d a -> a
 lookup2dOr def p g = Maybe.fromMaybe def (lookup2d p g)
