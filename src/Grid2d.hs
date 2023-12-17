@@ -2,6 +2,7 @@ module Grid2d
   ( Grid2d (..),
     range,
     bounds,
+    bottomRight,
     maxYBound,
     lookup2dOr,
     lookup2d,
@@ -34,12 +35,17 @@ bounds (Grid2d g) =
 maxYBound :: Grid2d a -> Int
 maxYBound g = let (_, _, _, yMax) = bounds g in yMax
 
+bottomRight :: Grid2d a -> (Int, Int)
+bottomRight g =
+  let (_, _, xMax, yMax) = bounds g
+   in (xMax, yMax)
+
 range :: Grid2d a -> ([Int], [Int])
 range g =
   let (xMin, yMin, xMax, yMax) = bounds g
    in ([xMin .. xMax], [yMin .. yMax])
 
-parseFromLines :: [String] -> Grid2d Char
+parseFromLines :: [[a]] -> Grid2d a
 parseFromLines ls = Grid2d $ M.fromList $ zip [0 ..] $ map (M.fromList . zip [0 ..]) $ L.transpose ls
 
 showAsGrid :: Grid2d Char -> String

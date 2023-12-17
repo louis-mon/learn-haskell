@@ -1,4 +1,23 @@
-module Geo (Point (..), coords, toPoint, zipCoord, plus, sub, neg, fromTuple, toTuple, way4, left, up, right, down) where
+module Geo
+  ( Point (..),
+    coords,
+    toPoint,
+    zipCoord,
+    plus,
+    sub,
+    scalePoint,
+    neg,
+    fromTuple,
+    toTuple,
+    way4,
+    left,
+    up,
+    right,
+    down,
+    turnRight,
+    turnLeft,
+  )
+where
 
 data Point = Point {x :: Int, y :: Int} deriving (Eq, Show, Ord)
 
@@ -38,5 +57,14 @@ plus (Point x1 y1) (Point x2 y2) = Point (x1 + x2) (y1 + y2)
 sub :: Point -> Point -> Point
 sub (Point x1 y1) (Point x2 y2) = Point (x1 - x2) (y1 - y2)
 
+scalePoint :: Int -> Point -> Point
+scalePoint k (Point x y) = Point (k * x) (k * y)
+
 neg :: Point -> Point
-neg (Point x y) = Point (-x) (-y)
+neg (Point x y) = Point (- x) (- y)
+
+turnRight :: Point -> Point
+turnRight (Point x y) = Point (- y) x
+
+turnLeft :: Point -> Point
+turnLeft (Point x y) = Point y (- x)
