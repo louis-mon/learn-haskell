@@ -3,6 +3,7 @@ module Grid2d
     range,
     bounds,
     bottomRight,
+    size,
     maxYBound,
     lookup2dOr,
     lookup2d,
@@ -39,6 +40,9 @@ bottomRight :: Grid2d a -> (Int, Int)
 bottomRight g =
   let (_, _, xMax, yMax) = bounds g
    in (xMax, yMax)
+   
+size :: Grid2d a -> (Int, Int)
+size g = let (x, y) = bottomRight g in (x+1,y+1)
 
 range :: Grid2d a -> ([Int], [Int])
 range g =
