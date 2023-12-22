@@ -36,17 +36,23 @@ data ModuleState = ModuleState {flipState :: M.Map String Bool, conjState :: M.M
 
 data St = St {input :: Input, zeroModules :: ModuleState, modules :: ModuleState, cnt :: M.Map Signal Integer, iter :: Integer}
 
+completeConj :: ModuleState -> [String]
+completeConj st =
+  let conj = conjState st
+      c = map fst . filter (\(n, s) -> M.size s > 1 && (all (== High) $ M.elems s)) $ M.assocs conj
+   in c
+
 countSignals :: [(String, String, Signal)] -> State St Integer
 countSignals sigs = do
-  St {input, zeroModules, modules = ModuleState {flipState = ofl, conjState = oc}, cnt, iter} <- get
-  if any (\(_, t, p) -> t == "rx" && p == Low) sigs
+  St {input, zeroModules, modules, cnt, iter} <- get
+  if iter > 204800 || any (\(_, t, p) -> t == "rx" && p == Low) sigs
     then return iter
     else
       if null sigs
         then do
           {--if iter >= endIter then
             return $ product $ M.elems cnt--}
-          modify (\st -> st {iter = iter + 1})
+          modify (\st -> st {iter = iter + 1, zeroModules = modules})
           countSignals [("button", "broadcaster", Low)]
         else do
           nextSigs <-
@@ -74,10 +80,10 @@ countSignals sigs = do
                             return $ map (toModule,,toEmit) (emits sigModule)
                       Nothing -> return []
                 )
-          ModuleState {flipState = nf, conjState = nc} <- gets (\St {modules} -> modules)
-          let flipDiffs = filter (uncurry (/=)) $ zip (M.assocs ofl) (M.assocs nf)
           modify (\st -> st {cnt = M.unionWith (+) cnt (M.fromListWith (+) $ map ((,1) . (\(_, _, s) -> s)) sigs)})
-          trace (show flipDiffs) $ countSignals nextSigs
+          let cpl = completeConj modules
+              showCpl = (if null cpl then id else trace ("iter " ++ (show iter) ++ " " ++ (show cpl)))
+          showCpl $ countSignals nextSigs
 
 sol :: String -> Integer
 sol str =
@@ -93,3 +99,5 @@ endIter = 1000
 test = sol <$> readSample 20
 
 run = sol <$> readInput 20
+
+answer = foldl lcm 1 [3793, 3911, 3917, 3929]
