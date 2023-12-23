@@ -1,2 +1,6 @@
 .stack-work/
 *~
+input.txt
+sample.txt
+.idea
+advent-of-code.cabal
