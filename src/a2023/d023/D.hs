@@ -104,18 +104,3 @@ sol dest str = let
 
 test = sol (Point 21 22) <$> readSample 23
 run = sol (Point 139 140) <$> readInput 23
-
-{--
-6030
-6086
-6094
-6166
-6186
-6194
-6198
-6238
-6274
-6298
-6362
-6398
---}
